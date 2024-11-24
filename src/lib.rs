@@ -2,9 +2,9 @@
 #![allow(unused_variables)]
 #![allow(non_snake_case)]
 
-pub mod dapps;
+ mod dapps;
 pub mod pb;
-pub mod utils;
+ mod utils;
 
 use pb::sf::solana::liquidity::providers::v1::{Output, TradeData};
 use substreams::log;
