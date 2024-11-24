@@ -259,7 +259,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f"
 
 [[package]]
-name = "liquidity-providers"
+name = "liquidity_providers"
 version = "1.0.0"
 dependencies = [
  "borsh",

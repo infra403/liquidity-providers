@@ -13,10 +13,11 @@ use utils::convert_to_date;
 
 #[substreams::handlers::map]
 fn map_block(block: Block) -> Result<Output, substreams::errors::Error> {
-    process_block(block)
+    let data = process_block(block);
+    Ok(Output { data: data })
 }
 
-fn process_block(block: Block) -> Result<Output, substreams::errors::Error> {
+pub fn process_block(block: Block) -> Vec<TradeData> {
     let slot = block.slot;
     let parent_slot = block.parent_slot;
     let timestamp = block.block_time.as_ref();
@@ -94,7 +95,7 @@ fn process_block(block: Block) -> Result<Output, substreams::errors::Error> {
     }
 
     log::info!("{:#?}", slot);
-    Ok(Output { data })
+    data
 }
 
 fn get_trade_data(
