@@ -1,5 +1,5 @@
 [package]
-name = "liquidity-providers"
+name = "liquidity_providers"
 version = "1.0.0"
 edition = "2021"
 
