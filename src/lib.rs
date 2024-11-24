@@ -8,10 +8,9 @@ pub mod utils;
 
 use pb::sf::solana::liquidity::providers::v1::{Output, TradeData};
 use substreams::log;
-use substreams_solana::pb::sf::solana::r#type::v1::{Block, InnerInstructions, TokenBalance};
+use substreams_solana::pb::sf::solana::r#type::v1::{Block, ConfirmedTransaction, InnerInstructions, TokenBalance};
 use utils::convert_to_date;
 
-#[substreams::handlers::map]
 fn map_block(block: Block) -> Result<Output, substreams::errors::Error> {
     let data = process_block(block);
     Ok(Output { data: data })
@@ -25,7 +24,7 @@ pub fn process_block(block: Block) -> Vec<TradeData> {
     if timestamp.is_some() {
         let timestamp = timestamp.unwrap().timestamp;
         for trx in block.transactions_owned() {
-            let accounts = trx.resolved_accounts_as_strings();
+            let accounts = resolved_accounts_as_strings(&trx);
             if let Some(transaction) = trx.transaction {
                 let meta = trx.meta.unwrap();
 
@@ -98,6 +97,37 @@ pub fn process_block(block: Block) -> Vec<TradeData> {
     data
 }
 
+// 提取 resolved_accounts 函数为一个独立函数
+// 提取 resolved_accounts 函数为一个独立函数
+pub fn resolved_accounts(transaction: &ConfirmedTransaction) -> Vec<&Vec<u8>> {
+    let meta = transaction.meta.as_ref().unwrap();
+    let mut accounts = vec![];
+
+    transaction.transaction.as_ref().unwrap().message.as_ref().unwrap().account_keys.iter().for_each(|addr| {
+        accounts.push(addr);
+    });
+    meta.loaded_writable_addresses.iter().for_each(|addr| {
+        accounts.push(addr);
+    });
+    meta.loaded_readonly_addresses.iter().for_each(|addr| {
+        accounts.push(addr);
+    });
+
+    accounts
+}
+
+// 将 resolved_accounts_as_strings 实现为一个独立函数
+pub fn resolved_accounts_as_strings(transaction: &ConfirmedTransaction) -> Vec<String> {
+    let accounts = resolved_accounts(transaction); // 获取账户数据
+
+    let mut resolved_accounts = vec![];
+
+    accounts
+        .iter()
+        .for_each(|addr| resolved_accounts.push(bs58::encode(addr).into_string())); // 转换为 Base58 编码字符串
+
+    resolved_accounts
+}
 fn get_trade_data(
     dapp_address: &String,
     instruction_data: Vec<u8>,
